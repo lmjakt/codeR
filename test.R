@@ -51,12 +51,24 @@ write.monospace.code <- function(code, left, top, cex=1, col=1:4, font=1:3, l.sp
          adj=c(0.5,0))
 }
 
+t.font <- c(1, 2, 3, 3, 1, 2)
+t.cols <- c('black', 'blue', 'purple', 'dark green', 'red', rgb(0.6, 0, 0.6))
+
+
 plot.new()
 plot.window(xlim=c(0,100), ylim=c(0,100))
-
-write.code(rlines.1, top=90, left=10)
+write.code(rlines.1, top=90, left=10, col=t.cols, font=t.font)
 
 plot.new()
 plot.window(xlim=c(0,100), ylim=c(0,100))
-write.monospace.code(rlines.1, top=90, left=10, cex=0.8)
-    
+write.monospace.code(rlines.1, top=90, left=10, cex=0.8, c.space=strwidth('3', cex=0.8))
+
+
+text(80, 60, "hello", font=1, cex=2, family='serif')
+
+source("colorise_R.R")
+
+rlines.2 <- coloriseR(rlines)
+
+plot.window(xlim=c(0,100), ylim=c(0,100))
+draw.code(rlines.2$code, top=90, left=10, col=t.cols, font=t.font)

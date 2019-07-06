@@ -12,6 +12,18 @@
 // each entry in the character vector.
 
 
+// compares characters until it runs out of characters
+// in a or b
+unsigned char prefix_cmp(const char *a, const char *b){
+  size_t i = 0;
+  while(a[i] && b[i]){
+    if(a[i] != b[i])
+      return(1);
+    ++i;
+  }
+  return( b[i] > 0 );
+}
+
 unsigned char char_in(const unsigned char c, const unsigned char *word){
   while(*word != 0 && *word != c)
     ++word;
@@ -37,7 +49,7 @@ enum char_class { ALPHA=1, NUM=2, SEP=4, OPERATOR=8, COMMENT_CHAR=16, ESCAPE=32,
 
 int char_class(const unsigned char c){
   unsigned int class = 0;
-  const unsigned char *separator = (const unsigned char*)" \n\t\r()[]{};";
+  const unsigned char *separator = (const unsigned char*)" \n\t\r()[]{};-+=*";
   const unsigned char *member = (const unsigned char*)"$@";
   //  const char *quote = "'\"";
   const unsigned char *operator = (const unsigned char*)"!%&*+-/:<>=?^|~";
@@ -58,7 +70,7 @@ int char_class(const unsigned char c){
   return(class);
 }
 
-enum text_mode { DEFAULT, FUNCTION, S_QUOTED, D_QUOTED, COMMENT };
+enum text_mode { DEFAULT, FUNCTION, S_QUOTED, D_QUOTED, COMMENT, ASSIGN };
 
 struct word_classes {
   int *line;
@@ -190,12 +202,12 @@ SEXP colorise_R(SEXP input_r){
       }
       if(str[j] == '(' && !char_in(previous_char, (const unsigned char*)"()[]|&^{}\\'\"")){
 	int k;
-	for(k=j-2; k > 0; k--){
+	for(k=j-2; k >= 0; k--){
 	  if( char_class(str[k]) & SEP )
 	    break;
 	}
 	push_back(&words, i, start_pos, k, current_mode);
-	push_back(&words, i, k+1, j-1, FUNCTION);  
+	push_back(&words, i, k+1, j-1, FUNCTION);
 	current_mode = DEFAULT;
 	start_pos = j;
 	goto loop_end;
@@ -209,6 +221,14 @@ SEXP colorise_R(SEXP input_r){
 	current_mode = COMMENT;
 	goto loop_end;
       }
+      if(!prefix_cmp( str + j, "<-" )){
+	push_back(&words, i, start_pos, j-1, current_mode);
+	push_back(&words, i, j, j+1, ASSIGN);
+	j++;
+	start_pos = j+1; // hmm
+	current_mode = DEFAULT;
+	goto loop_end;
+      }
     loop_end:
       previous_char = str[j];
     }
@@ -220,10 +240,20 @@ SEXP colorise_R(SEXP input_r){
   // 1. Line numbers
   // 2. Words
   // 3. Word classes
-  SEXP ret_data = PROTECT(allocVector(VECSXP, 3));
+  // 4. Terms for the classes
+  SEXP ret_data = PROTECT(allocVector(VECSXP, 4));
   SET_VECTOR_ELT(ret_data, 0, allocVector(INTSXP, words.size));
   SET_VECTOR_ELT(ret_data, 1, allocVector(STRSXP, words.size));
   SET_VECTOR_ELT(ret_data, 2, allocVector(INTSXP, words.size));
+  SET_VECTOR_ELT(ret_data, 3, allocVector(STRSXP, 6));
+
+  SEXP text_modes = VECTOR_ELT(ret_data, 3);
+  SET_STRING_ELT(text_modes, 0, mkChar("default"));
+  SET_STRING_ELT(text_modes, 1, mkChar("function"));
+  SET_STRING_ELT(text_modes, 2, mkChar("s_quoted"));
+  SET_STRING_ELT(text_modes, 3, mkChar("d_quoted"));
+  SET_STRING_ELT(text_modes, 4, mkChar("comment"));
+  SET_STRING_ELT(text_modes, 5, mkChar("assignment"));
 
   int *line_nos = INTEGER( VECTOR_ELT(ret_data, 0) );
   SEXP ret_words = VECTOR_ELT(ret_data, 1);
@@ -255,3 +285,8 @@ SEXP colorise_R(SEXP input_r){
   UNPROTECT(1);
   return( ret_data );
 }
+
+
+
+
+
