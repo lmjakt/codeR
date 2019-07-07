@@ -11,29 +11,36 @@ par(bg=rgb(0.3, 0.3, 0.3))
 
 plot.new()
 plot.window(xlim=c(0,100), c(0,100))
-draw.code(code.f, 10, 90, cex=1.5, dark.bg=TRUE)
+draw.code(code.f, 10, 90, cex=1, dark.bg=TRUE)
 
 plot.new()
 plot.window(xlim=c(0,100), c(0,100))
-draw.code(code.f, 10, 90, cex=1.5, dark.bg=TRUE, family='mono')
+draw.code(code.f, 10, 90, cex=1, dark.bg=TRUE, family='mono', l.spc=2)
 
 plot.new()
 plot.window(xlim=c(0,100), c(0,100))
-draw.code(code.f, 10, 90, cex=1.5, dark.bg=TRUE, family='Mincho')
+draw.code(code.f, 10, 90, cex=1, dark.bg=TRUE, family='Mincho', l.spc=2)
 
 ## to use the Hack monospaced font
 ## which looks much nicer than Courier
 X11Fonts('hack'=X11Font("-*-Hack-*-*-*-*-*-*-*-*-*-*-*-*"))
+X11Fonts('Mono'=X11Font("-*-Monospace-*-*-*-*-*-*-*-*-*-*-*-*"))
+X11Fonts('LibMono'=X11Font("-*-Liberation Mono-*-*-*-*-*-*-*-*-*-*-*-*"))
 
 plot.new()
 plot.window(xlim=c(0,100), c(0,100))
-draw.code(code.f, 10, 90, cex=1, dark.bg=TRUE, family='hack')
+draw.code(code.f, 10, 90, cex=1, dark.bg=TRUE, family='hack', l.spc=1.8)
 
-## To output pdf with the Hack font
-## this does not work
-pdfFonts(hack=pdfFont("-*-Hack-*-*-*-*-*-*-*-*-*-*-*-*"))
+plot.new()
+plot.window(xlim=c(0,100), c(0,100))
+draw.code(code.f, 10, 90, cex=0.8, dark.bg=TRUE, family='Mono', l.spc=1.8)
 
-## but the package extrafont may help here
+plot.new()
+plot.window(xlim=c(0,100), c(0,100))
+draw.code(code.f, 10, 90, cex=0.8, dark.bg=TRUE, family='LibMono', l.spc=1.8)
+
+
+## Use the extrafont package to make system fonts available
 install.packages("extrafont")
 library(extrafont)
 ##font_import()
@@ -49,3 +56,11 @@ plot.new()
 plot.window(xlim=c(0,100), c(0,100))
 draw.code(code.f, 10, 90, cex=0.5, dark.bg=TRUE, family='Hack')
 dev.off()
+
+
+## use the constrained drawing
+plot.new()
+plot.window(xlim=c(0,100), c(0,100))
+rect(10, 10, 90, 90)
+draw.code.box(code.f, 10, 90, width=80, height=80, cex=0.5, dark.bg=TRUE, family='Monospace',
+              moderation=0.15)

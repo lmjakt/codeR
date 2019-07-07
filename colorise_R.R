@@ -43,7 +43,8 @@ classFonts <- function(class.names){
     data.frame( 'font'=fonts, 'desc'=font.des[ fonts ], stringsAsFactors=FALSE )
 }
 
-## code is a dataframe as returned by coloriseR
+## codes is a list as returned by coloriseR
+## which contains a datarame called code
 draw.code <- function(codes, left, top, cex=1, dark.bg=FALSE,
                       col=NULL, font=NULL, l.spc=1.5,
                       do.draw=TRUE, line.no=FALSE,
@@ -103,10 +104,10 @@ draw.code.box <- function(codes, left, top, width, height,
                           line.col=ifelse(dark.bg,
                                           rgb(0.7, 0.7, 0.7),
                                           rgb(0.3, 0.3, 0.3)),
+                          maxiter=20, moderation=0.2,
                           ...){
-    maxiter <- 20
     iter <- 1
-    while(TRUE){
+    while(iter <- maxiter){
         pos <- draw.code(codes, left, top, cex, dark.bg,
                          col, font, l.spc,
                          do.draw=FALSE, line.no,
@@ -115,9 +116,9 @@ draw.code.box <- function(codes, left, top, width, height,
         w <- max( pos$pos[,'x'] + pos$pos[,'w'] )
         h <- pos$lheight + max(pos$pos[,'y']) - min(pos$pos[,'y'])
         print(paste("cex:", cex, " w:", w, " h:", h))
-        if(w < width && h < height || iter > maxiter)
+        if(w < width && h < height)
             break
-        cex <- cex * exp( 0.15 * min( c(log(width/w), log(height / h) )) )
+        cex <- cex * exp( moderation * min( c(log(width/w), log(height / h) )) )
         ## and try again... 
         iter <- iter + 1
     }
