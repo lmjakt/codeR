@@ -19,4 +19,4 @@ graphics. The software consists of two components:
    4. `draw.code`. Draws the code with the suggested colors and
       faces.
 
- 
+<img src="example_code.png" width="500">      
