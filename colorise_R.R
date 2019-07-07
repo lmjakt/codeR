@@ -45,7 +45,13 @@ classFonts <- function(class.names){
 
 ## code is a dataframe as returned by coloriseR
 draw.code <- function(codes, left, top, cex=1, dark.bg=FALSE,
-                      col=NULL, font=NULL, l.spc=1.5, ...){
+                      col=NULL, font=NULL, l.spc=1.5,
+                      do.draw=TRUE, line.no=FALSE,
+                      line.font=3, line.margin=2,
+                      line.col=ifelse(dark.bg,
+                                      rgb(0.7, 0.7, 0.7),
+                                      rgb(0.3, 0.3, 0.3)),
+                      ...){
     if(is.null(col))
         col <- classColors(codes$classes, dark.bg)
     if(is.null(font)){
@@ -56,16 +62,68 @@ draw.code <- function(codes, left, top, cex=1, dark.bg=FALSE,
     }
     code <- codes$code
     line.height <- strheight('A', cex=cex, ...) * l.spc ## seems not to matter
-    x <- left
+    ##x <- left
+    pos <- matrix(nrow=nrow(code), ncol=3)
+    colnames(pos) <- c('x', 'w', 'y')
+    pos[,'y'] <- (top - code[,1] * line.height)    
     for(i in 1:nrow(code)){
         y <- top - code[i,1] * line.height
-        x <- ifelse( (i==1 || code[i-1,1] != code[i,1]), left,
-                    x + strwidth( code[i-1, 2], cex=cex,
-                                 font=font[ 1 + code[i-1, 3] %% length(font) ], ...) )
-        text(x, y, code[i,2],
-             col=col[ 1 + code[i,3] %% length(col) ],
-             font=font[ 1 + code[i,3] %% length(font) ],
-             cex=cex, adj=c(0,0), ... )
+        pos[i,'w'] <- strwidth(code[i, 2], cex=cex,
+                               font=font[ 1 + code[i, 3] %% length(font) ], ...)
+        pos[i,'x'] <- ifelse( (i==1 || code[i-1,1] != code[i,1]), left,
+                            pos[i-1,'x'] + pos[i-1,'w'] )
     }
-    invisible(list('cols'=col, 'fonts'=font.classes, 'y'=(top - code[,1] * line.height)))
+    if(line.no){
+        labels <- 0:max(code[,1])
+        labels.y <- (top - labels * line.height)
+        labels <- labels + 1
+        labels.w <- max(strwidth(labels, cex=cex, font=3))
+        labels.col <- line.col
+        pos[,'x'] <- pos[,'x'] + line.margin * labels.w
+    }
+    if(do.draw){
+        text(pos[,'x'], pos[,'y'], code[,2],
+             col=col[ 1 + code[,3] %% length(col) ],
+             font=font[ 1 + code[,3] %% length(font) ],
+             cex=cex, adj=c(0,1), ... )
+        if(line.no)
+            text(left, labels.y, col=labels.col, cex=cex,
+                 font=3, adj=c(0,1), ...)
+        }
+    invisible(list('cols'=col, 'fonts'=font.classes, 'pos'=pos, 'lheight'=line.height))
+}
+
+## scales the text to fit the box specified.. 
+draw.code.box <- function(codes, left, top, width, height,
+                          justify=c(0.5, 0.5),
+                          cex=1, dark.bg=FALSE,
+                          col=NULL, font=NULL, l.spc=1.5,
+                          line.no=FALSE,
+                          line.font=3, line.margin=2,
+                          line.col=ifelse(dark.bg,
+                                          rgb(0.7, 0.7, 0.7),
+                                          rgb(0.3, 0.3, 0.3)),
+                          ...){
+    maxiter <- 20
+    iter <- 1
+    while(TRUE){
+        pos <- draw.code(codes, left, top, cex, dark.bg,
+                         col, font, l.spc,
+                         do.draw=FALSE, line.no,
+                         line.font, line.margin,
+                         line.col, ...)
+        w <- max( pos$pos[,'x'] + pos$pos[,'w'] )
+        h <- pos$lheight + max(pos$pos[,'y']) - min(pos$pos[,'y'])
+        print(paste("cex:", cex, " w:", w, " h:", h))
+        if(w < width && h < height || iter > maxiter)
+            break
+        cex <- cex * exp( 0.15 * min( c(log(width/w), log(height / h) )) )
+        ## and try again... 
+        iter <- iter + 1
+    }
+    draw.code(codes, left, top, cex, dark.bg,
+              col, font, l.spc,
+              do.draw=TRUE, line.no,
+              line.font, line.margin,
+              line.col, ...)
 }
