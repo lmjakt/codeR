@@ -5,7 +5,7 @@ dyn.load("colorise_R.so")
 
 coloriseR <- function(lines){
     clines <- .Call("colorise_R", lines)
-    df <- data.frame( 'i'=clines[[1]],
+    df <- data.frame('i'=clines[[1]],
                      'string'=clines[[2]],
                      'class'=clines[[3]],
                      'description'=clines[[4]][ clines[[3]] + 1 ])
@@ -45,7 +45,7 @@ classFonts <- function(class.names){
 
 ## code is a dataframe as returned by coloriseR
 draw.code <- function(codes, left, top, cex=1, dark.bg=FALSE,
-                      col=NULL, font=NULL, l.spc=1.5){
+                      col=NULL, font=NULL, l.spc=1.5, ...){
     if(is.null(col))
         col <- classColors(codes$classes, dark.bg)
     if(is.null(font)){
@@ -55,17 +55,17 @@ draw.code <- function(codes, left, top, cex=1, dark.bg=FALSE,
         font.classes <- font
     }
     code <- codes$code
-    line.height <- strheight('A', cex=cex) * l.spc ## seems not to matter
+    line.height <- strheight('A', cex=cex, ...) * l.spc ## seems not to matter
     x <- left
     for(i in 1:nrow(code)){
         y <- top - code[i,1] * line.height
         x <- ifelse( (i==1 || code[i-1,1] != code[i,1]), left,
                     x + strwidth( code[i-1, 2], cex=cex,
-                                 font=font[ 1 + code[i-1, 3] %% length(font) ]) )
+                                 font=font[ 1 + code[i-1, 3] %% length(font) ], ...) )
         text(x, y, code[i,2],
              col=col[ 1 + code[i,3] %% length(col) ],
              font=font[ 1 + code[i,3] %% length(font) ],
-             cex=cex, adj=c(0,0) )
+             cex=cex, adj=c(0,0), ... )
     }
-    invisible(list('cols'=col, 'fonts'=font.classes))
+    invisible(list('cols'=col, 'fonts'=font.classes, 'y'=(top - code[,1] * line.height)))
 }
