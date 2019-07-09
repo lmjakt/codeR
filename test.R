@@ -72,3 +72,19 @@ rlines.2 <- coloriseR(rlines)
 
 plot.window(xlim=c(0,100), ylim=c(0,100))
 draw.code(rlines.2$code, top=90, left=10, col=t.cols, font=t.font)
+
+## How does cex relate to spacing
+
+cx <- 3 * 0.75^(1:12)
+
+word <- "test"
+sizes <- sapply(cx, function(cex){ c(strwidth(word, cex=cex), strheight(word, cex=cex))} )
+
+par(mfrow=c(2,1))
+plot( cx, sizes[1,], col='white' )
+lm(sizes[1,] ~ cx )
+abline(0, 0.037, col='white')
+plot( cx, sizes[2,], col='white' )
+lm(sizes[2,] ~ cx )
+abline(0, 0.05, col='white')
+

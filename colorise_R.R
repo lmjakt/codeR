@@ -48,10 +48,11 @@ classFonts <- function(class.names){
 draw.code <- function(codes, left, top, cex=1, dark.bg=FALSE,
                       col=NULL, font=NULL, l.spc=1.5,
                       do.draw=TRUE, line.no=FALSE,
-                      line.font=3, line.margin=2,
+                      line.font=3, line.margin=1,
                       line.col=ifelse(dark.bg,
                                       rgb(0.7, 0.7, 0.7),
                                       rgb(0.3, 0.3, 0.3)),
+                      zebra=NULL,
                       ...){
     if(is.null(col))
         col <- classColors(codes$classes, dark.bg)
@@ -66,7 +67,7 @@ draw.code <- function(codes, left, top, cex=1, dark.bg=FALSE,
     ##x <- left
     pos <- matrix(nrow=nrow(code), ncol=3)
     colnames(pos) <- c('x', 'w', 'y')
-    pos[,'y'] <- (top - code[,1] * line.height)    
+    pos[,'y'] <- (top - code[,1] * line.height) - line.height/2   
     for(i in 1:nrow(code)){
         y <- top - code[i,1] * line.height
         pos[i,'w'] <- strwidth(code[i, 2], cex=cex,
@@ -74,22 +75,26 @@ draw.code <- function(codes, left, top, cex=1, dark.bg=FALSE,
         pos[i,'x'] <- ifelse( (i==1 || code[i-1,1] != code[i,1]), left,
                             pos[i-1,'x'] + pos[i-1,'w'] )
     }
-    if(line.no){
-        labels <- 0:max(code[,1])
-        labels.y <- (top - labels * line.height)
-        labels <- labels + 1
-        labels.w <- max(strwidth(labels, cex=cex, font=3))
-        labels.col <- line.col
-        pos[,'x'] <- pos[,'x'] + line.margin * labels.w
-    }
+    text.w <- max( pos[,'x'] + pos[,'w'] )
+    labels <- 0:max(code[,1])
+    labels.y <- (top - labels * line.height) - line.height/2
+    labels <- labels + 1
+    labels.w <- max(strwidth(labels, cex=cex, font=line.font))
+    labels.col <- line.col
+    if(line.no)
+        pos[,'x'] <- pos[,'x'] + labels.w + line.margin * strwidth("9", cex=cex, font=line.font)
     if(do.draw){
+        if(!is.null(zebra)){
+            rect(left, labels.y - line.height/2, left + text.w, labels.y + line.height/2,
+                 col=zebra, border=NA)
+        }
         text(pos[,'x'], pos[,'y'], code[,2],
              col=col[ 1 + code[,3] %% length(col) ],
              font=font[ 1 + code[,3] %% length(font) ],
-             cex=cex, adj=c(0,1), ... )
+             cex=cex, adj=c(0,0.5), ... )
         if(line.no)
-            text(left, labels.y, col=labels.col, cex=cex,
-                 font=3, adj=c(0,1), ...)
+            text(left, labels.y, labels, col=labels.col, cex=cex,
+                 font=line.font, adj=c(0,0.5), ...)
         }
     invisible(list('cols'=col, 'fonts'=font.classes, 'pos'=pos, 'lheight'=line.height))
 }
@@ -113,7 +118,7 @@ draw.code.box <- function(codes, left, top, width, height,
                          do.draw=FALSE, line.no,
                          line.font, line.margin,
                          line.col, ...)
-        w <- max( pos$pos[,'x'] + pos$pos[,'w'] )
+        w <- max( pos$pos[,'x'] + pos$pos[,'w'] - left )
         h <- pos$lheight + max(pos$pos[,'y']) - min(pos$pos[,'y'])
         print(paste("cex:", cex, " w:", w, " h:", h))
         if(w < width && h < height)
@@ -122,9 +127,11 @@ draw.code.box <- function(codes, left, top, width, height,
         ## and try again... 
         iter <- iter + 1
     }
-    draw.code(codes, left, top, cex, dark.bg,
+    pos <- draw.code(codes, left, top, cex, dark.bg,
               col, font, l.spc,
               do.draw=TRUE, line.no,
               line.font, line.margin,
               line.col, ...)
+    return(c('pos'=pos, 'cex'=cex))
+    rect(left, top-h, left+w, top)
 }
