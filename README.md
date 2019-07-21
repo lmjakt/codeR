@@ -39,12 +39,13 @@ like powerpoint. Of course, this could all be done using latex,
 beamer and tikz; but my data analysis is already in R, and in
 any case I prefer the R to tikz.
 
+### Part of codeR rendered by codeR
 <figure>
 	<img src="example_2.png" width="700">
-	<figcaption>Part of codeR rendered by codeR
 	</figcaption>
 </figure>
 
+The commands to produce this rendering:
 ```R
 png("example_2.png", width=1200, height=1400)
 par(bg=rgb(0.3, 0.3, 0.3)) 
@@ -57,7 +58,7 @@ dev.off()
 
 ```
 
-And the above colored by `codeR`:
+And the drawing commands above rendered by `codeR`:
 <figure>
 	<img src="png_example_1.png" width="700">
 	<figcaption>Code rendered with line numbering and zebra background
