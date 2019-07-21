@@ -37,7 +37,7 @@ would like to do everything from within R.
 So basically this is all in order to not have to use programs
 like powerpoint. Of course, this could all be done using latex,
 beamer and tikz; but my data analysis is already in R, and in
-any case I prefer the R to tikz.
+any case I prefer R to tikz.
 
 ### Part of codeR rendered by codeR
 <figure>
