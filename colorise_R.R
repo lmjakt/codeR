@@ -63,8 +63,8 @@ draw.code <- function(codes, left, top, cex=1, dark.bg=FALSE,
         font.classes <- font
     }
     code <- codes$code
-    line.height <- strheight('A', cex=cex, ...) * l.spc ## seems not to matter
-    ##x <- left
+    ## All characters have the same height
+    line.height <- strheight('A', cex=cex, ...) * l.spc 
     pos <- matrix(nrow=nrow(code), ncol=3)
     colnames(pos) <- c('x', 'w', 'y')
     pos[,'y'] <- (top - code[,1] * line.height) - line.height/2   
@@ -79,10 +79,13 @@ draw.code <- function(codes, left, top, cex=1, dark.bg=FALSE,
     labels <- 0:max(code[,1])
     labels.y <- (top - labels * line.height) - line.height/2
     labels <- labels + 1
-    labels.w <- max(strwidth(labels, cex=cex, font=line.font))
+    labels.w <- max(strwidth(labels, cex=cex, font=line.font)) +
+        line.margin * strwidth("9", cex=cex, font=line.font)
     labels.col <- line.col
-    if(line.no)
-        pos[,'x'] <- pos[,'x'] + labels.w + line.margin * strwidth("9", cex=cex, font=line.font)
+    if(line.no){
+        pos[,'x'] <- pos[,'x'] + labels.w
+        text.w  <- text.w + labels.w
+    }
     if(do.draw){
         if(!is.null(zebra)){
             rect(left, labels.y - line.height/2, left + text.w, labels.y + line.height/2,

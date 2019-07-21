@@ -20,6 +20,6 @@ graphics. The software consists of two components:
       faces.
 
 <figure>
-	<img src="example_code.png" width="700">
+	<img src="example_2.png" width="700">
 	<figcaption>Part of codeR rendered by codeR</figcaption>
 </figure>

@@ -3,7 +3,7 @@ source("colorise_R.R")
 
 code <- readLines("colorise_R.R")
 
-code.f <- coloriseR(code[70:100])
+code.f <- coloriseR(code[48:100])
 
 x11()
 
@@ -28,8 +28,37 @@ X11Fonts('Mono'=X11Font("-*-Monospace-*-*-*-*-*-*-*-*-*-*-*-*"))
 X11Fonts('LibMono'=X11Font("-*-Liberation Mono-*-*-*-*-*-*-*-*-*-*-*-*"))
 
 plot.new()
+par("mar"=c(2,2,2,2))
 plot.window(xlim=c(0,100), c(0,100))
-draw.code(code.f, 10, 90, cex=1, dark.bg=TRUE, family='hack', l.spc=1.8)
+draw.code(code.f, 0, 100, cex=1, dark.bg=TRUE, family='hack', l.spc=1.8)
+
+png("example_1.png", width=1200, height=1400)
+par(bg=rgb(0.3, 0.3, 0.3)) 
+par(mar=c(1,1,1,1))
+plot.new()
+plot.window(xlim=c(0,100), c(0,100))
+draw.code(code.f, 0, 100, cex=1.5, dark.bg=TRUE, family='hack',
+          l.spc=1.8, line.no=FALSE)
+dev.off()
+
+png("example_2.png", width=1200, height=1400)
+par(bg=rgb(0.3, 0.3, 0.3)) 
+par(mar=c(1,1,1,1))
+plot.new()
+plot.window(xlim=c(0,100), c(0,100))
+draw.code(code.f, 0, 100, cex=1.5, dark.bg=TRUE, family='hack',
+          l.spc=1.8, line.no=TRUE)
+dev.off()
+
+png("example_3.png", width=1200, height=1400)
+par(bg=rgb(0.3, 0.3, 0.3)) 
+par(mar=c(1,1,1,1))
+plot.new()
+plot.window(xlim=c(0,100), c(0,100))
+draw.code(code.f, 0, 100, cex=1.5, dark.bg=TRUE, family='hack',
+          l.spc=2, line.no=TRUE,
+          zebra=c(rgb(0.3, 0.3, 0.3), rgb(0.3, 0.35, 0.35)))
+dev.off()
 
 plot.new()
 plot.window(xlim=c(0,100), c(0,100))
@@ -50,11 +79,23 @@ library(extrafont)
 loadfonts()
 
 ## And then we can use Hack to output a proper pdf.
+## this doesn't always work. However the following should work
+
+## to see the names of pdfFonts
+names(pdfFonts())
+
+pdf.mono  <- grep("mono", names(pdfFonts()), ignore.case=TRUE, value=TRUE)
+## pdf.mono[2] is 'DejaVu Sans Mono' on my laptop. That seems the
+## best of this set. Note that pdf.mono[4], 'Liberation Mono' does not
+## work.
+
 pdf("example_code.pdf", width=7, height=14, title='code colored by coloriseR')
 par(bg=rgb(0.3, 0.3, 0.3)) 
+par(mar=c(1,1,1,1))
 plot.new()
 plot.window(xlim=c(0,100), c(0,100))
-draw.code(code.f, 10, 90, cex=0.5, dark.bg=TRUE, family='Monospace')
+draw.code(code.f, 0, 100, cex=0.5, dark.bg=TRUE,
+          family=pdf.mono[2], l.spc=2)
 dev.off()
 
 
@@ -66,6 +107,7 @@ rect(10, 10, 90, 90)
 ppars <- draw.code.box(code.f, 10, 90, width=80, height=80, cex=0.5,
                        dark.bg=TRUE, family='Mono',
                        moderation=0.5)
+
 
 
 pdf("example_code_2.pdf", width=7, height=7, title='code colored by coloriseR')
