@@ -26,13 +26,20 @@ graphics. The software consists of two components:
 </figure>
 
 ```R
-png("example_1.png", width=1200, height=1400)
+png("example_2.png", width=1200, height=1400)
 par(bg=rgb(0.3, 0.3, 0.3)) 
 par(mar=c(1,1,1,1))
 plot.new()
 plot.window(xlim=c(0,100), c(0,100))
 draw.code(code.f, 0, 100, cex=1.5, dark.bg=TRUE, family='hack',
-          l.spc=1.8, line.no=FALSE)
+          l.spc=1.8, line.no=TRUE)
 dev.off()
 
 ```
+
+And the above colored by `codeR`:
+<figure>
+	<img src="png_example_1.png" width="700">
+	<figcaption>Code rendered with line numbering and zebra background
+	</figcaption>
+</figure>

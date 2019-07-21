@@ -60,6 +60,30 @@ draw.code(code.f, 0, 100, cex=1.5, dark.bg=TRUE, family='hack',
           zebra=c(rgb(0.3, 0.3, 0.3), rgb(0.3, 0.35, 0.35)))
 dev.off()
 
+## make a png of the text above:
+png.code  <- c(
+    'png("example_2.png", width=1200, height=1400)',
+    'par(bg=rgb(0.3, 0.3, 0.3))',
+    'par(mar=c(1,1,1,1))',
+    'plot.new()',
+    'plot.window(xlim=c(0,100), c(0,100))',
+    "draw.code(code.f, 0, 100, cex=1.5, dark.bg=TRUE, family='hack',",
+    '          l.spc=1.8, line.no=TRUE)',
+    'dev.off()')
+
+png.code.f  <- coloriseR(png.code)
+
+png("png_example_1.png", width=1200, height=600)
+par(bg=rgb(0.3, 0.3, 0.3)) 
+par(mar=c(1,1,1,1))
+plot.new()
+plot.window(xlim=c(0,100), c(0,100))
+draw.code(png.code.f, 0, 100, cex=1.5, dark.bg=TRUE, family='hack',
+          l.spc=2, line.no=TRUE,
+          zebra=c(rgb(0.3, 0.3, 0.3), rgb(0.3, 0.35, 0.35)))
+dev.off()
+
+
 plot.new()
 plot.window(xlim=c(0,100), c(0,100))
 draw.code(code.f, 10, 90, cex=0.8, dark.bg=TRUE, family='Mono', l.spc=1.8)
