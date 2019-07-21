@@ -14,14 +14,25 @@
 
 // compares characters until it runs out of characters
 // in a or b
-unsigned char prefix_cmp(const char *a, const char *b){
+size_t prefix_cmp(const char *a, const char *b){
   size_t i = 0;
   while(a[i] && b[i]){
     if(a[i] != b[i])
-      return(1);
+      return(0);
     ++i;
   }
-  return( b[i] > 0 );
+  // if b[i] is 0, we have reached the end of b[i]
+  // return the length of the word, otherwise return 0
+  return( b[i] == 0 ? i : 0 );
+}
+
+size_t compare_words(const char *str, const char **words, size_t n){
+  size_t wl = 0;
+  for(size_t i=0; i < n; ++i){
+    if( (wl = prefix_cmp(str, words[i])) )
+      return(wl);
+  }
+  return(0);
 }
 
 unsigned char char_in(const unsigned char c, const unsigned char *word){
@@ -70,7 +81,7 @@ int char_class(const unsigned char c){
   return(class);
 }
 
-enum text_mode { DEFAULT, FUNCTION, S_QUOTED, D_QUOTED, COMMENT, ASSIGN };
+enum text_mode { DEFAULT, FUNCTION, S_QUOTED, D_QUOTED, COMMENT, ASSIGN, BOOLEAN };
 
 struct word_classes {
   int *line;
@@ -164,6 +175,7 @@ SEXP colorise_R(SEXP input_r){
     // We go through the words; if we find we need to change mode, then we need to 
     // find the start of the mode and so on.. 
     int j=0;
+    size_t word_length; // used occassionally
     for(j=0; str[j] != 0; ++j){
       enum char_class cc = char_class( str[j] );
       if(previous_char == '\\')  // should never have special meaning, so should be OK
@@ -221,10 +233,18 @@ SEXP colorise_R(SEXP input_r){
 	current_mode = COMMENT;
 	goto loop_end;
       }
-      if(!prefix_cmp( str + j, "<-" )){
+      if(prefix_cmp( str + j, "<-" )){
 	push_back(&words, i, start_pos, j-1, current_mode);
 	push_back(&words, i, j, j+1, ASSIGN);
 	j++;
+	start_pos = j+1; // hmm
+	current_mode = DEFAULT;
+	goto loop_end;
+      }
+      if( (word_length = compare_words(str + j, (const char*[]){"TRUE", "FALSE"}, 2)) ){
+	push_back(&words, i, start_pos, j-1, current_mode);
+	push_back(&words, i, j, j+word_length-1, BOOLEAN);
+	j += word_length - 1;
 	start_pos = j+1; // hmm
 	current_mode = DEFAULT;
 	goto loop_end;
@@ -245,7 +265,7 @@ SEXP colorise_R(SEXP input_r){
   SET_VECTOR_ELT(ret_data, 0, allocVector(INTSXP, words.size));
   SET_VECTOR_ELT(ret_data, 1, allocVector(STRSXP, words.size));
   SET_VECTOR_ELT(ret_data, 2, allocVector(INTSXP, words.size));
-  SET_VECTOR_ELT(ret_data, 3, allocVector(STRSXP, 6));
+  SET_VECTOR_ELT(ret_data, 3, allocVector(STRSXP, 7));
 
   SEXP text_modes = VECTOR_ELT(ret_data, 3);
   SET_STRING_ELT(text_modes, 0, mkChar("default"));
@@ -254,6 +274,7 @@ SEXP colorise_R(SEXP input_r){
   SET_STRING_ELT(text_modes, 3, mkChar("d_quoted"));
   SET_STRING_ELT(text_modes, 4, mkChar("comment"));
   SET_STRING_ELT(text_modes, 5, mkChar("assignment"));
+  SET_STRING_ELT(text_modes, 6, mkChar("logical"));
 
   int *line_nos = INTEGER( VECTOR_ELT(ret_data, 0) );
   SEXP ret_words = VECTOR_ELT(ret_data, 1);

@@ -73,7 +73,7 @@ png.code  <- c(
 
 png.code.f  <- coloriseR(png.code)
 
-png("png_example_1.png", width=1200, height=600)
+png("png_example_1.png", width=800, height=280)
 par(bg=rgb(0.3, 0.3, 0.3)) 
 par(mar=c(1,1,1,1))
 plot.new()

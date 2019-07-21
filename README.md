@@ -18,6 +18,26 @@ graphics. The software consists of two components:
       (plain, bold, ...) for the recognised classes.
    4. `draw.code`. Draws the code with the suggested colors and
       faces.
+   5. `draw.code.box`. Draws the code as above but with the character
+      expansion adjusted to make the code fit within the rectangle
+      provided.
+
+## Motivation, or why anyone might ever use these functions.
+I spend a lot of time visualising data in R. Using R low-level
+drawing primitives allows me to visualise a wide range of data
+types, including such things as gene structures, multiple alignments
+and gene synteny. This is both useful and fun; and I have some
+ideas about making a presentation explaining how this can be done,
+which means that I want to show R-code and the graphics produced
+by it. If I was making a document this can be done using R-Markdown,
+but I want to make presentations; and because I rather like
+the user interface provided by R (i.e. a programmatic one) I
+would like to do everything from within R.
+
+So basically this is all in order to not have to use programs
+like powerpoint. Of course, this could all be done using latex,
+beamer and tikz; but my data analysis is already in R, and in
+any case I prefer the R to tikz.
 
 <figure>
 	<img src="example_2.png" width="700">

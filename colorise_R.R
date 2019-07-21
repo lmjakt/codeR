@@ -27,6 +27,7 @@ classColors <- function(class.names, dark.bg=FALSE){
     cols['d_quoted'] = ifelse(dark.bg, rgb(0.3, 0.8, 0.8), rgb(0.1, 0.5, 0.5))
     cols['comment'] = ifelse(dark.bg, rgb(0.9, 0.4, 0.4), rgb(0.6, 0.1, 0.1))
     cols['assignment'] = ifelse(dark.bg, rgb(0.8, 0.1, 0.8), rgb(0.7, 0.1, 0.7))
+    cols['logical'] = ifelse(dark.bg, rgb(0.1, 0.7, 0.1), rgb(0.1, 0.7, 0.1))
     cols
 }
 
