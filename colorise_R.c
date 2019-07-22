@@ -213,10 +213,13 @@ SEXP colorise_R(SEXP input_r){
 	goto loop_end;
       }
       if(str[j] == '(' && !char_in(previous_char, (const unsigned char*)"()[]|&^{}\\'\"")){
-	int k;
-	for(k=j-2; k >= 0; k--){
+	int k=j-1;
+	while( char_in(str[k], (const unsigned char*)" \t") && k > 0 )
+	  k--;
+	while( k >= 0 ){
 	  if( char_class(str[k]) & SEP )
 	    break;
+	  k--;
 	}
 	push_back(&words, i, start_pos, k, current_mode);
 	push_back(&words, i, k+1, j-1, FUNCTION);

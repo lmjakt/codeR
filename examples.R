@@ -5,6 +5,11 @@ code <- readLines("colorise_R.R")
 
 code.f <- coloriseR(code[48:100])
 
+code.section  <- code[57:67]
+## add spaces between if and (
+code.section[1]  <- "    if  (is.null  (col))"
+code.section.f  <- coloriseR(code.section)
+
 x11()
 
 par(bg=rgb(0.3, 0.3, 0.3))
@@ -30,7 +35,14 @@ X11Fonts('LibMono'=X11Font("-*-Liberation Mono-*-*-*-*-*-*-*-*-*-*-*-*"))
 plot.new()
 par("mar"=c(2,2,2,2))
 plot.window(xlim=c(0,100), c(0,100))
-draw.code(code.f, 0, 100, cex=1, dark.bg=TRUE, family='hack', l.spc=1.8)
+draw.code(code.f, 0, 100, cex=1, dark.bg=TRUE, family='hack',
+          l.spc=1.8, line.no=TRUE)
+
+plot.new()
+par("mar"=c(2,2,2,2))
+plot.window(xlim=c(0,100), c(0,100))
+draw.code(code.section.f, 0, 100, cex=1, dark.bg=TRUE, family='hack',
+          l.spc=1.8, line.no=TRUE)
 
 png("example_1.png", width=1200, height=1400)
 par(bg=rgb(0.3, 0.3, 0.3)) 
