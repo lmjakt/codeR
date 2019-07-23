@@ -81,7 +81,7 @@ int char_class(const unsigned char c){
   return(class);
 }
 
-enum text_mode { DEFAULT, FUNCTION, S_QUOTED, D_QUOTED, COMMENT, ASSIGN, BOOLEAN };
+enum text_mode { DEFAULT, FUNCTION, S_QUOTED, D_QUOTED, COMMENT, ASSIGN, BOOLEAN, NONVALUE, CONDITIONAL };
 
 struct word_classes {
   int *line;
@@ -148,6 +148,12 @@ void push_back( struct word_classes *words, int line_i, int s_pos, int e_pos, en
   words->size++;
 }
 
+int last_word_end(struct word_classes *words){
+  if(words->size < 1)
+    return(0);
+  return( words->end_pos[ words->size - 1 ] );
+}
+
 SEXP colorise_R(SEXP input_r){
   if(TYPEOF(input_r) != STRSXP)
     error("input must be a character vector");
@@ -212,17 +218,28 @@ SEXP colorise_R(SEXP input_r){
 	start_pos = j;
 	goto loop_end;
       }
+      if( (word_length = compare_words(str + j,
+				       (const char*[]){"ifelse", "if", "for", "while"}, 4)) ){
+	push_back(&words, i, start_pos, j-1, current_mode);
+	push_back(&words, i, j, j+word_length-1, CONDITIONAL);
+	j += word_length - 1;
+	start_pos = j+1; // hmm
+	current_mode = DEFAULT;
+	goto loop_end;
+      }
       if(str[j] == '(' && !char_in(previous_char, (const unsigned char*)"()[]|&^{}\\'\"")){
 	int k=j-1;
-	while( char_in(str[k], (const unsigned char*)" \t") && k > 0 )
+	int last_end = last_word_end(&words);
+	while( char_in(str[k], (const unsigned char*)" \t") && k > last_end )
 	  k--;
-	while( k >= 0 ){
+	while( k >= last_end ){
 	  if( char_class(str[k]) & SEP )
 	    break;
 	  k--;
 	}
 	push_back(&words, i, start_pos, k, current_mode);
-	push_back(&words, i, k+1, j-1, FUNCTION);
+	if(j-1 > k+1)
+	  push_back(&words, i, k+1, j-1, FUNCTION);
 	current_mode = DEFAULT;
 	start_pos = j;
 	goto loop_end;
@@ -252,6 +269,14 @@ SEXP colorise_R(SEXP input_r){
 	current_mode = DEFAULT;
 	goto loop_end;
       }
+      if( (word_length = compare_words(str + j, (const char*[]){"NULL", "NA"}, 2)) ){
+	push_back(&words, i, start_pos, j-1, current_mode);
+	push_back(&words, i, j, j+word_length-1, NONVALUE);
+	j += word_length - 1;
+	start_pos = j+1; // hmm
+	current_mode = DEFAULT;
+	goto loop_end;
+      }
     loop_end:
       previous_char = str[j];
     }
@@ -268,7 +293,7 @@ SEXP colorise_R(SEXP input_r){
   SET_VECTOR_ELT(ret_data, 0, allocVector(INTSXP, words.size));
   SET_VECTOR_ELT(ret_data, 1, allocVector(STRSXP, words.size));
   SET_VECTOR_ELT(ret_data, 2, allocVector(INTSXP, words.size));
-  SET_VECTOR_ELT(ret_data, 3, allocVector(STRSXP, 7));
+  SET_VECTOR_ELT(ret_data, 3, allocVector(STRSXP, 9));
 
   SEXP text_modes = VECTOR_ELT(ret_data, 3);
   SET_STRING_ELT(text_modes, 0, mkChar("default"));
@@ -278,6 +303,8 @@ SEXP colorise_R(SEXP input_r){
   SET_STRING_ELT(text_modes, 4, mkChar("comment"));
   SET_STRING_ELT(text_modes, 5, mkChar("assignment"));
   SET_STRING_ELT(text_modes, 6, mkChar("logical"));
+  SET_STRING_ELT(text_modes, 7, mkChar("null"));
+  SET_STRING_ELT(text_modes, 8, mkChar("conditional"));
 
   int *line_nos = INTEGER( VECTOR_ELT(ret_data, 0) );
   SEXP ret_words = VECTOR_ELT(ret_data, 1);

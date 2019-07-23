@@ -17,7 +17,7 @@ classColors <- function(class.names, dark.bg=FALSE){
     n <- length(class.names)
     cols <- rep('black', n)
     if(dark.bg)
-        cols <- rep('white', n)
+        cols <- rep(rgb(0.92, 0.92, 0.8), n)
     names(cols) <- class.names
     ## R simply adds elements to the end of the list if we
     ## try to assign using unknown names. So the following should
@@ -28,10 +28,12 @@ classColors <- function(class.names, dark.bg=FALSE){
     cols['comment'] = ifelse(dark.bg, rgb(0.9, 0.4, 0.4), rgb(0.6, 0.1, 0.1))
     cols['assignment'] = ifelse(dark.bg, rgb(0.8, 0.1, 0.8), rgb(0.7, 0.1, 0.7))
     cols['logical'] = ifelse(dark.bg, rgb(0.1, 0.7, 0.1), rgb(0.1, 0.7, 0.1))
+    cols['null'] = ifelse(dark.bg, rgb(0.7, 0.4, 0.1), rgb(0.7, 0.4, 0.1))
+    cols['conditional'] = ifelse(dark.bg, rgb(0.6, 0.6, 0.9), rgb(0.2, 0.2, 0.7))
     cols
 }
 
-## returns a data frame giving both the numeric codes and
+## returns a dataframe giving both the numeric codes and
 ## their meaning
 classFonts <- function(class.names){
     font.des <- c('plain', 'bold', 'italic', 'bold italic', 'symbol')
@@ -45,7 +47,7 @@ classFonts <- function(class.names){
 }
 
 ## codes is a list as returned by coloriseR
-## which contains a datarame called code
+## which contains a dataframe called code
 draw.code <- function(codes, left, top, cex=1, dark.bg=FALSE,
                       col=NULL, font=NULL, l.spc=1.5,
                       do.draw=TRUE, line.no=FALSE,
