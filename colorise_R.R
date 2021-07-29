@@ -1,7 +1,7 @@
 ## A small number of functions to facilitate the presentation of R
 ## code on screen.
 
-dyn.load("colorise_R.so")
+with( parent.frame(2), dyn.load( paste(dirname(ofile), "colorise_R.so", sep="/")) )
 
 coloriseR <- function(lines){
     clines <- .Call("colorise_R", lines)
