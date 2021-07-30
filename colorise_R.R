@@ -126,7 +126,6 @@ draw.code.box <- function(codes, left, top, width, height,
                          line.col, ...)
         w <- max( pos$pos[,'x'] + pos$pos[,'w'] - left )
         h <- pos$lheight + max(pos$pos[,'y']) - min(pos$pos[,'y'])
-        print(paste("cex:", cex, " w:", w, " h:", h))
         if(w < width && h < height)
             break
         cex <- cex * exp( moderation * min( c(log(width/w), log(height / h) )) )
