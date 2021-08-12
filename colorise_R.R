@@ -128,7 +128,9 @@ draw.code.box <- function(codes, left, top, width, height,
         h <- pos$lheight + max(pos$pos[,'y']) - min(pos$pos[,'y'])
         if(w < width && h < height)
             break
-        cex <- cex * exp( moderation * min( c(log(width/w), log(height / h) )) )
+        tmp.cex <- cex * seq(1, 0.1, -0.1)
+        cex <- tmp.cex[ which( sapply(tmp.cex, function(x){ strheight("A", cex=x) }) < strheight("A", cex=cex) )[1] ]
+##        cex <- cex * exp( moderation * min( c(log(width/w), log(height / h) )) )
         ## and try again... 
         iter <- iter + 1
     }
