@@ -218,15 +218,15 @@ SEXP colorise_R(SEXP input_r){
 	start_pos = j;
 	goto loop_end;
       }
-      if( (word_length = compare_words(str + j,
-				       (const char*[]){"ifelse", "if", "for", "while"}, 4)) ){
-	push_back(&words, i, start_pos, j-1, current_mode);
-	push_back(&words, i, j, j+word_length-1, CONDITIONAL);
-	j += word_length - 1;
-	start_pos = j+1; // hmm
-	current_mode = DEFAULT;
-	goto loop_end;
-      }
+      /* if( (word_length = compare_words(str + j, */
+      /* 				       (const char*[]){"ifelse", "if", "for", "while"}, 4)) ){ */
+      /* 	push_back(&words, i, start_pos, j-1, current_mode); */
+      /* 	push_back(&words, i, j, j+word_length-1, CONDITIONAL); */
+      /* 	j += word_length - 1; */
+      /* 	start_pos = j+1; // hmm */
+      /* 	current_mode = DEFAULT; */
+      /* 	goto loop_end; */
+      /* } */
       if(str[j] == '(' && !char_in(previous_char, (const unsigned char*)"()[]|&^{}\\'\"")){
 	int k=j-1;
 	int last_end = last_word_end(&words);
@@ -238,7 +238,7 @@ SEXP colorise_R(SEXP input_r){
 	  k--;
 	}
 	push_back(&words, i, start_pos, k, current_mode);
-	if(j-1 > k+1)
+	if(j-1 >= k+1)
 	  push_back(&words, i, k+1, j-1, FUNCTION);
 	current_mode = DEFAULT;
 	start_pos = j;
